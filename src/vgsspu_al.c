@@ -34,7 +34,6 @@ struct SPU {
     void* buffer;
     void (*callback)(void* buffer, size_t size);
     pthread_t tid;
-    pthread_mutex_t mt;
     size_t size;
     int sampling;
     int bit;
@@ -84,9 +83,7 @@ void* vgsspu_start2(int sampling, int bit, int ch, size_t size, void (*callback)
     }
 
     result->alive = 1;
-    pthread_mutex_init(&result->mt, NULL);
     if (pthread_create(&result->tid, NULL, sound_thread, result)) {
-        pthread_mutex_destroy(&result->mt);
         free(result->buffer);
         free(result);
         return NULL;
@@ -99,7 +96,6 @@ void vgsspu_end(void* context)
     struct SPU* c = (struct SPU*)context;
     c->alive = 0;
     pthread_join(c->tid, NULL);
-    pthread_mutex_destroy(&c->mt);
     term_al(&c->al);
     free(c->buffer);
     free(c);
