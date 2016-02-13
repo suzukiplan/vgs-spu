@@ -34,6 +34,7 @@ struct SPU {
     int format;
 };
 
+static int init_ds(struct SPU* c);
 static HWND get_current_hwnd(void);
 static void sound_thread(void* arg);
 static int ds_wait(BYTE wctrl);
@@ -69,9 +70,9 @@ void* __stdcall vgsspu_start2(int sampling, int bit, int ch, size_t size, void (
     }
     result->alive = 1;
     result->tid = _beginthread(sound_thread, 65536, result);
-    if (-1L == c->tid) {
+    if (-1L == result->tid) {
         vgsspu_end(result);
-        return -1;
+        return NULL;
     }
     return result;
 }
@@ -81,7 +82,7 @@ void __stdcall vgsspu_end(void* context)
     struct SPU* c = (struct SPU*)context;
     if (-1L != c->tid) {
         c->alive = 0;
-        WaitForSingleObject((HANDLE)_uiSnd, INFINITE);
+        WaitForSingleObject((HANDLE)c->tid, INFINITE);
     }
     if (c->ds.ntfy) {
         c->ds.ntfy->Release();
@@ -127,8 +128,8 @@ static int init_ds(struct SPU* c)
     memset(&wFmt, 0, sizeof(wFmt));
     wFmt.wFormatTag = WAVE_FORMAT_PCM;
     wFmt.nChannels = c->ch;
-    wFmt.nSamplesPerSec = c->bit;
-    wFmt.wBitsPerSample = c->sampling;
+    wFmt.nSamplesPerSec = c->sampling;
+    wFmt.wBitsPerSample = c->bit;
     wFmt.nBlockAlign = wFmt.nChannels * wFmt.wBitsPerSample / 8;
     wFmt.nAvgBytesPerSec = wFmt.nSamplesPerSec * wFmt.nBlockAlign;
     wFmt.cbSize = 0;
@@ -191,11 +192,8 @@ static void sound_thread(void* context)
 
     while (c->alive) {
         dwSize = (DWORD)c->size;
-        while (c->alive) {
-            res = c->ds.buf->Lock(0, c->buffer, &lpBuf, &dwSize, NULL, NULL, DSBLOCK_FROMWRITECURSOR);
-            if (!FAILED(res)) {
-                break;
-            }
+        lpBuf = c->buffer;
+        while (c->alive && FAILED(c->ds.buf->Lock(0, dwSize, &lpBuf, &dwSize, NULL, NULL, DSBLOCK_FROMWRITECURSOR))) {
             Sleep(1);
         }
         if (!c->alive) break;
@@ -203,11 +201,11 @@ static void sound_thread(void* context)
         if (FAILED(c->ds.buf->Unlock(lpBuf, dwSize, NULL, NULL))) break;
         ResetEvent(c->ds.dspn.hEventNotify);
         if (FAILED(c->ds.buf->SetCurrentPosition(0))) break;
-        while (s->alive) {
+        while (c->alive) {
             if (!FAILED(c->ds.buf->Play(0, 0, 0))) break;
             Sleep(1);
         }
-        while (s->alive) {
+        while (c->alive) {
             if (WAIT_OBJECT_0 == WaitForSingleObject(c->ds.dspn.hEventNotify, 1000)) {
                 break;
             }

@@ -1,0 +1,4 @@
+all:
+	CL /MT -I../src test_sound_440Hz_1sec.c ../src/vgsspu_dsound.cpp dxguid.lib dsound.lib user32.lib
+	test_sound_440Hz_1sec
+
