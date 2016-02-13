@@ -1,4 +1,8 @@
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 #include <stdio.h>
 #include "vgsspu.h"
 
@@ -27,7 +31,11 @@ int main(int argc, char* argv[])
         puts("failed");
         return -1;
     }
+#ifdef _WIN32
+	Sleep(1000);
+#else
     usleep(1000000);
+#endif
     vgsspu_end(context);
     return 0;
 }
