@@ -1,4 +1,4 @@
-# VGS SPU 
+# [WIP] VGS SPU 
 SUZUKI PLAN - Video Game System - Sound Processing Unit
 
 ## License
@@ -6,7 +6,7 @@ SUZUKI PLAN - Video Game System - Sound Processing Unit
 
 ## Description
 Abstracts the following sound APIs:
-- DirectX (Windows)
+- DirectSound (Windows)
 - OpenSL/ES (Android)
 - OpenAL (MacOSX and iOS)
 - ALSA; Advanced Linux Sound Architecture (Linux)
