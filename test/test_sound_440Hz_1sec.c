@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 #ifdef _WIN32
-	Sleep(1000);
+    Sleep(1000);
 #else
     usleep(1000000);
 #endif
