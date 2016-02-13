@@ -16,8 +16,11 @@ Abstracts the following sound APIs:
 ## Start
 #### prototyping
 ```
-void* vgsspu_start(int sampling, int bit, int ch, size_t size, void (*callback)(void* buffer, size_t size));
+void* vgsspu_start(void (*callback)(void* buffer, size_t size));
+void* vgsspu_start2(int sampling, int bit, int ch, size_t size, void (*callback)(void* buffer, size_t size));
 ```
+
+_NOTE: `vgsspu_start` specifies 22050Hz, 16bit, 1ch and 4410 bytes as size._
 
 #### arguments
 - `sampling` : sampling rate _(48000, 44100, 22050, 11025, 8000 etc)_
