@@ -1,6 +1,9 @@
 # VGS SPU 
 SUZUKI PLAN - Video Game System - Sound Processing Unit
 
+## License
+[The BSD 2-Clause License](https://github.com/suzukiplan/vgs-spu/blob/master/LICENSE.txt)
+
 ## Description
 Abstracts the following sound APIs:
 - DirectX (Windows)
