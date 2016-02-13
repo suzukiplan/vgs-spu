@@ -38,12 +38,12 @@ static HWND get_current_hwnd(void);
 static void sound_thread(void* arg);
 static int ds_wait(BYTE wctrl);
 
-void* vgsspu_start(void (*callback)(void* buffer, size_t size))
+void* __stdcall vgsspu_start(void (*callback)(void* buffer, size_t size))
 {
     return vgsspu_start2(22050, 16, 1, 4410, callback);
 }
 
-void* vgsspu_start2(int sampling, int bit, int ch, size_t size, void (*callback)(void* buffer, size_t size))
+void* __stdcall vgsspu_start2(int sampling, int bit, int ch, size_t size, void (*callback)(void* buffer, size_t size))
 {
     struct SPU* result;
 
@@ -76,7 +76,7 @@ void* vgsspu_start2(int sampling, int bit, int ch, size_t size, void (*callback)
     return result;
 }
 
-void vgsspu_end(void* context)
+void __stdcall vgsspu_end(void* context)
 {
     struct SPU* c = (struct SPU*)context;
     if (-1L != c->tid) {
@@ -119,7 +119,7 @@ static int init_ds(struct SPU* c)
     }
 
     hWnd = get_current_hwnd();
-    c->ds.dev = _lpDS->SetCooperativeLevel(hWnd, DSSCL_NORMAL);
+    res = c->ds.dev->SetCooperativeLevel(hWnd, DSSCL_NORMAL);
     if (FAILED(res)) {
         return -1;
     }
@@ -139,7 +139,7 @@ static int init_ds(struct SPU* c)
     desc.dwBufferBytes = c->size;
     desc.lpwfxFormat = &wFmt;
     desc.guid3DAlgorithm = GUID_NULL;
-    res = _lpDS->CreateSoundBuffer(&desc, &tmp, NULL);
+    res = c->ds.dev->CreateSoundBuffer(&desc, &tmp, NULL);
     if (FAILED(res)) {
         return -1;
     }
@@ -150,7 +150,7 @@ static int init_ds(struct SPU* c)
         return -1;
     }
 
-    res = _lpSB->QueryInterface(IID_IDirectSoundNotify, (void**)&c->ds.ntfy);
+    res = c->ds.buf->QueryInterface(IID_IDirectSoundNotify, (void**)&c->ds.ntfy);
     if (FAILED(res)) {
         return -1;
     }
@@ -201,7 +201,7 @@ static void sound_thread(void* context)
         if (!c->alive) break;
         c->callback(lpBuf, c->size);
         if (FAILED(c->ds.buf->Unlock(lpBuf, dwSize, NULL, NULL))) break;
-        ResetEvent(_dspn.hEventNotify);
+        ResetEvent(c->ds.dspn.hEventNotify);
         if (FAILED(c->ds.buf->SetCurrentPosition(0))) break;
         while (s->alive) {
             if (!FAILED(c->ds.buf->Play(0, 0, 0))) break;
