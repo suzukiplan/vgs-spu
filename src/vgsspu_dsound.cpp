@@ -186,7 +186,6 @@ static HWND get_current_hwnd()
 static void sound_thread(void* context)
 {
     struct SPU* c = (struct SPU*)context;
-    HRESULT res;
     LPVOID lpBuf;
     DWORD dwSize;
 
