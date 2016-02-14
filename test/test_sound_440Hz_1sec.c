@@ -22,7 +22,7 @@ static void buffering(void* buffer, size_t size)
     size_t s2 = size >> 1;
     size_t s1;
     for (s1 = 0; s1 < s2; s1++, sbuf++, hz++) {
-        if (hz % 440 < 220) {
+        if (hz % 50 < 25) {
             *sbuf = (short)((16384 * pw) / 22050);
         } else {
             *sbuf = (short)((-16384 * pw) / 22050);
