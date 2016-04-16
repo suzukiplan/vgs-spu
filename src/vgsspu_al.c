@@ -145,7 +145,7 @@ static void* sound_thread(void* context)
             alGenBuffers(1, &c->al.sndABuf);
         }
         c->callback(c->buffer, c->size);
-        alBufferData(c->al.sndABuf, c->format, c->buffer, c->size, c->sampling);
+        alBufferData(c->al.sndABuf, c->format, c->buffer, (int)c->size, c->sampling);
         alSourceQueueBuffers(c->al.sndASrc, 1, &c->al.sndABuf);
     }
     do {
